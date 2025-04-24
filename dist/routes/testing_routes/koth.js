@@ -52,4 +52,20 @@ router.get("/getkoth/:token", async (req, res) => {
         res.status(500).json({ error: "Failed to calculate progress" });
     }
 });
+router.get("/getSol/:tokenn", async (req, res) => {
+    const { tokenn } = req.params;
+    try {
+        const balance = await (0, web3_1.getSol)(tokenn);
+        // const io = req.app.get('io');
+        // io.emit("kothGet", { koth });
+        const ably = req.app.get("ably");
+        const channel = ably.channels.get("coins");
+        channel.publish("solGet", { balance });
+        res.status(200).json({ progress: balance });
+    }
+    catch (error) {
+        console.error("Error calculating king of the hill progress:", error);
+        res.status(500).json({ error: "Failed to calculate progress" });
+    }
+});
 exports.default = router;

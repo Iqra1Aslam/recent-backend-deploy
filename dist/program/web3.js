@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.eachTokenPrice = exports.KingOfTheHillProgress = exports.checkRaydiumMigration = exports.getBondingCurveProgressAMarketC = exports.getMarketCapSolFromBondingC = void 0;
+exports.eachTokenPrice = exports.getSol = exports.KingOfTheHillProgress = exports.checkRaydiumMigration = exports.getBondingCurveProgressAMarketC = exports.getMarketCapSolFromBondingC = void 0;
 // Add these at the top of the file
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -277,8 +277,15 @@ exports.checkRaydiumMigration = checkRaydiumMigration;
 const KingOfTheHillProgress = async (BID) => {
     try {
         const bondingCurveBalance = await connection.getBalance(new web3_js_1.PublicKey(`${BID}`));
-        const kothProgress = ((bondingCurveBalance / 1000000000) / 20) * 100;
-        return kothProgress;
+        const bondingCurveAcc = await program.account.bondingCurve.fetch(`${BID}`);
+        if (!bondingCurveAcc.isCompleted) {
+            const kothProgress = ((bondingCurveBalance / 1_000_000_000) / 20) * 100;
+            return kothProgress;
+        }
+        else {
+            // When bonding is completed, return 100% progress
+            return 100;
+        }
     }
     catch (error) {
         console.error("Error calculating king of the hill progress", error);
@@ -286,6 +293,25 @@ const KingOfTheHillProgress = async (BID) => {
     }
 };
 exports.KingOfTheHillProgress = KingOfTheHillProgress;
+//       const kothProgress = ((bondingCurveBalance/1000000000) / 20) * 100;
+//       return kothProgress;
+//     } catch (error) {
+//       console.error("Error calculating king of the hill progress", error);
+//       return 0;
+//     }
+// }
+const getSol = async (BID) => {
+    try {
+        const bondingCurveBalance = await connection.getBalance(new web3_js_1.PublicKey(`${BID}`));
+        const Sol = bondingCurveBalance / 1_000_000_000;
+        return Sol;
+    }
+    catch (error) {
+        console.error("Error calculating king of the hill progress", error);
+        return 0;
+    }
+};
+exports.getSol = getSol;
 const eachTokenPrice = async (bID) => {
     const bondingCurveAcc = await program.account.bondingCurve.fetch(`${bID}`);
     const virtual_Sol = bondingCurveAcc.virtualSolReserves.toNumber() / 1_000_000;

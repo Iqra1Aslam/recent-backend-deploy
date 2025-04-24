@@ -18,6 +18,10 @@ const coinSchema = new Schema({
     kothprogress: { type: Number, default: 0 },
     isCrown: { type: Boolean, default: false },
     isMigrated: { type: Boolean, default: false },
+    hasCompletedKoth: {
+        type: Boolean,
+        default: false
+    },
     migratedAt: { type: Date }
 });
 const Coin = mongoose.model("Coin", coinSchema);

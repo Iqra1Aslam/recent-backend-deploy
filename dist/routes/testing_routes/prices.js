@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const Price_1 = __importDefault(require("../../models/Price"));
+const web3_1 = require("../../program/web3");
 const router = (0, express_1.Router)();
 // POST route to store token price with bonding curve ID
 // router.post("/api/price", async (req, res) => {
@@ -30,6 +31,20 @@ const router = (0, express_1.Router)();
 //     });
 //   }
 // });
+router.get("/token-price/:bid", async (req, res) => {
+    try {
+        const bid = req.params.bid;
+        const price = await (0, web3_1.eachTokenPrice)(bid);
+        res.status(201).json({ message: "Price saved", bid, price });
+    }
+    catch (error) {
+        console.error("Error saving price:", error);
+        res.status(500).json({
+            error: "Failed to save price",
+            message: error.message,
+        });
+    }
+});
 router.post("/api/price", async (req, res) => {
     try {
         const { price, bondingCurve } = req.body;
